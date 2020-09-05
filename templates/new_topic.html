@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="POST">
+<form method="POST" name="new_post" onsubmit="return validate()" class="parent">
     {% csrf_token %}
     <div class="form-group">
         <label for="id_subject">Subject</label>
@@ -20,5 +20,6 @@
         <textarea name="message" class="form-control" id="id_message" rows="5"></textarea>
     </div>
     <button type="submit" class="btn btn-success">POST</button>
+    <a href="{% url 'board_topics' board.name %}" class="btn btn-primary return-btn">Back</a>
 </form>
 {% endblock %}
