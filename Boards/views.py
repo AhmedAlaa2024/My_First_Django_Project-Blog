@@ -50,6 +50,8 @@ def new_topic(request, board_name):
 def topic_posts(request, board_name, topic_subject):
     topic = get_object_or_404(Topic, board__name=board_name, subject=topic_subject)
     posts = topic.posts.all().order_by('-created_dt')
+    topic.views += 1
+    topic.save()
     return render(request, 'topic_posts.html', {'topic': topic, 'posts': posts})
 
 @login_required
