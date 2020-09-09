@@ -4,12 +4,13 @@ from django.contrib.auth.models import User
 from .models import Board, Topic, Post
 from .forms import NewTopicForm, NewPostForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 
 # Create your views here.
 
 
 def home(request):
-    boards = Board.objects.all()
+    boards = Board.objects.all().order_by('-created_dt')
     return render(request, 'home.html', {'boards': boards})
 
 
@@ -23,7 +24,8 @@ def board_topics(request, board_name):
     # A method to get Error404 Page Not Found using django shourtcuts
     # Note: you should import get_object_or_404 from django.shortcuts
     board = get_object_or_404(Board, name=board_name)
-    return render(request, 'topics.html', {'board': board})
+    topics = board.topics.order_by('-created_dt').annotate(comments=Count('posts'))
+    return render(request, 'topics.html', {'board': board, 'topics': topics})
 
 @login_required
 def new_topic(request, board_name):
@@ -47,7 +49,8 @@ def new_topic(request, board_name):
 
 def topic_posts(request, board_name, topic_subject):
     topic = get_object_or_404(Topic, board__name=board_name, subject=topic_subject)
-    return render(request, 'topic_posts.html', {'topic': topic})
+    posts = topic.posts.all().order_by('-created_dt')
+    return render(request, 'topic_posts.html', {'topic': topic, 'posts': posts})
 
 @login_required
 def reply_topic(request, board_name, topic_subject):
