@@ -10,4 +10,6 @@ urlpatterns = [
          views.topic_posts, name='topic_posts'),
     path('boards/<board_name>/topics/<topic_subject>/reply/',
          views.reply_topic, name='reply_topic'),
+    path('boards/<board_name>/topics/<topic_subject>/posts/<int:post_id>/edit/',
+         views.PostUpdateView.as_view(), name='edit_post'),
 ]
