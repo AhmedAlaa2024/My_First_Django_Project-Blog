@@ -5,16 +5,23 @@ from .models import Board, Topic, Post
 from .forms import NewTopicForm, NewPostForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-from django.views.generic import UpdateView
+from django.views.generic import UpdateView, ListView
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 # Create your views here.
 
-
+'''
 def home(request):
     boards = Board.objects.all().order_by('-created_dt')
     return render(request, 'home.html', {'boards': boards})
+'''
+
+class BoardListView(ListView):
+    model = Board
+    context_object_name = 'boards'
+    template_name = 'home.html'
 
 
 def board_topics(request, board_name):
@@ -27,7 +34,15 @@ def board_topics(request, board_name):
     # A method to get Error404 Page Not Found using django shourtcuts
     # Note: you should import get_object_or_404 from django.shortcuts
     board = get_object_or_404(Board, name=board_name)
-    topics = board.topics.order_by('-created_dt').annotate(comments=Count('posts'))
+    queryset = board.topics.order_by('-created_dt').annotate(comments=Count('posts'))
+    page = request.GET.get('page', 1)
+    paginator = Paginator(queryset, 20)
+    try:
+        topics = paginator.page(page)
+    except PageNotAnInteger:
+        topics = paginator.page(1)
+    except EmptyPage:
+        topics = paginator.page(paginator.num_pages)
     return render(request, 'topics.html', {'board': board, 'topics': topics})
 
 @login_required
